@@ -218,3 +218,18 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Ignore entire models folder
+assets/models/
+
+# Ignore model weight files (just in case)
+*.pth
+*.h5
+*.pt
+*.onnx
+*.pickle
+*.joblib
+*.weights
+*.ckpt
+*.pb
+*.tflite
