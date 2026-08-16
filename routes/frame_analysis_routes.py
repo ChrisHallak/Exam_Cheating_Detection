@@ -1,26 +1,14 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import  UploadFile, File,APIRouter, HTTPException
 from PIL import Image
 import io
-import numpy as np
 from typing import Dict, Any
-
 from services.frame_analyzer import FrameAnalyzer
-
-analyzer = FrameAnalyzer()
+from services.display_image import show_frame_with_report
 
 frame_analysis_router = APIRouter(
     prefix="/frame-analysis",
     tags=["Frame Analysis"]
 )
-
-
-@frame_analysis_router.get("/start_exam")
-def start_exam():
-
-    return {
-        "message": "Frame analysis service is ready"
-    }
-
 
 @frame_analysis_router.post("/analyze-frame")
 async def analyze_frame(
@@ -29,6 +17,8 @@ async def analyze_frame(
 ) -> Dict[str, Any]:
 
     try:
+        analyzer = FrameAnalyzer()
+
         # Validate file type
         if not frame.content_type.startswith('image/'):
             raise HTTPException(
@@ -47,7 +37,7 @@ async def analyze_frame(
         # Analyze the frame
         result = analyzer.analyze_frame(pil_image, frame_id)
 
-        return {
+        report =  {
             "success": True,
             "frame_id": frame_id,
             "violations": result.get('violations', []),
@@ -55,6 +45,8 @@ async def analyze_frame(
             "violation_count": len(result.get('violations', [])),
             "has_violations": len(result.get('violations', [])) > 0
         }
+        show_frame_with_report(pil_image, report)
+        return report
 
     except Exception as e:
         print(f"Error processing frame: {str(e)}")
